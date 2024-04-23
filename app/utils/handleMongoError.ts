@@ -6,7 +6,6 @@ export function handleMongoError(error: any, res: Response) {
   let message = "Internal server error";
 
   switch (errorCode) {
-    // console.log(errorCode);
     case 11000:
     case 11001:
       statusCode = 400;
@@ -34,25 +33,8 @@ export function handleMongoError(error: any, res: Response) {
       message = "MongoDB network error: Error in network connection";
       break;
     case "MongoServerError":
-      // Check for the specific error message
-      if (error.message.includes("Transaction numbers are only allowed")) {
-        statusCode = 400; // or any appropriate status code
-        message =
-          "Error registering delivery partner: Transaction numbers are only allowed on a replica set member or mongos";
-      } else {
-        statusCode = 500;
-        message = "MongoDB server error: " + error.message;
-      }
-      break;
-    case "EAUTH":
-      if (error.command === "API") {
-        statusCode = 404;
-        message = "Missing credentials for GMAIL.";
-      } else {
-        statusCode = 535;
-        message =
-          "Invalid email authentication credentials. Please check your email provider settings.";
-      }
+      statusCode = 500;
+      message = "MongoDB server error: " + error.message;
       break;
     default:
       statusCode = 500;
