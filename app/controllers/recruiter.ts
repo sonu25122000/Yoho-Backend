@@ -45,15 +45,18 @@ const register = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
   // Handle Recruiter login
-  const { email, password } = req.body;
+  const { phoneNumber, password } = req.body;
 
   try {
     // Find Recruiter by email
-    const Recruiter = await RecruiterModel.findOne({ email });
+    const Recruiter = await RecruiterModel.findOne({ phoneNumber });
     if (!Recruiter) {
       return res
         .status(404)
-        .json({ success: false, message: "Recruiter not found" });
+        .json({
+          success: false,
+          message: `Recruiter not found with ${phoneNumber}`,
+        });
     }
     if (Recruiter.isDeactivated) {
       return res.status(403).json({
@@ -190,12 +193,36 @@ const getAllRecruiter = async (req: Request, res: Response) => {
   }
 };
 
+const getRecruiterById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: `Provided ID : ${id} is not valid`,
+      });
+    }
+    const Recruiter = await RecruiterModel.findById(id);
+    if (!Recruiter) {
+      return res.status(404).json({
+        success: false,
+        message: "Recruiter not found.",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Recruiter details fetch Successfully.",
+      data: Recruiter,
+    });
+  } catch (error) {}
+};
 export const reCruiterController = {
   register,
   login,
   updateRecruiter,
   softDeletedRecruiter,
   getAllRecruiter,
+  getRecruiterById,
 };
 // change password
 // get all recruiter details with pagination

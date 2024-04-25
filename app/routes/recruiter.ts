@@ -4,6 +4,7 @@ import { authenticateToken } from "../middleware/auth.middleware";
 
 const router = express.Router();
 router.get("/", reCruiterController.getAllRecruiter);
+router.get("/:id", reCruiterController.getRecruiterById);
 router.post("/register", reCruiterController.register);
 router.post("/login", authenticateToken, reCruiterController.login);
 router.patch("/:id", authenticateToken, reCruiterController.updateRecruiter);
