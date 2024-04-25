@@ -176,11 +176,26 @@ export const changePassword = async (req: Request, res: Response) => {
   }
 };
 
+const getAllRecruiter = async (req: Request, res: Response) => {
+  try {
+    const data = await RecruiterModel.find();
+    return res.status(200).json({
+      success: true,
+      message: "list of all recruiter.",
+      data: data,
+    });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    handleMongoError(error, res);
+  }
+};
+
 export const reCruiterController = {
   register,
   login,
   updateRecruiter,
   softDeletedRecruiter,
+  getAllRecruiter,
 };
 // change password
 // get all recruiter details with pagination
