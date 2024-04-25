@@ -140,10 +140,9 @@ const softDeletedRecruiter = async (req: Request, res: Response) => {
     handleMongoError(error, res);
   }
 };
-
-export const changePassword = async (req: Request, res: Response) => {
+ const changePassword = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     if (!isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
@@ -214,8 +213,13 @@ const getRecruiterById = async (req: Request, res: Response) => {
       message: "Recruiter details fetch Successfully.",
       data: Recruiter,
     });
-  } catch (error) {}
+  } catch (error) {
+     console.error("Error changing password:", error);
+    handleMongoError(error, res);
+  }
 };
+
+
 export const reCruiterController = {
   register,
   login,
@@ -223,6 +227,7 @@ export const reCruiterController = {
   softDeletedRecruiter,
   getAllRecruiter,
   getRecruiterById,
+  changePassword
 };
 // change password
 // get all recruiter details with pagination

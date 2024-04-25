@@ -7,7 +7,8 @@ router.get("/", reCruiterController.getAllRecruiter);
 router.get("/:id", reCruiterController.getRecruiterById);
 router.post("/register", reCruiterController.register);
 router.post("/login", authenticateToken, reCruiterController.login);
-router.patch("/:id", authenticateToken, reCruiterController.updateRecruiter);
+router.patch("/:id", reCruiterController.updateRecruiter);
+router.patch("/change-password/:id",reCruiterController.changePassword)
 router.delete(
   "/:id",
   authenticateToken,

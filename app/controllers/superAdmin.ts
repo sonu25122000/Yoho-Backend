@@ -8,15 +8,15 @@ import { generateToken } from "../service/jwtService";
 
 const register = async (req: Request, res: Response) => {
   // Handle superAdmin registration
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password,phoneNumber } = req.body;
 
   try {
-    // Check if superAdmin already exists
-    const existingSuperAdmin = await SuperAdminModel.findOne({ email });
+    // Check if superAdmin already existss
+    const existingSuperAdmin = await SuperAdminModel.findOne({ phoneNumber });
     if (existingSuperAdmin) {
       return res
         .status(400)
-        .json({ success: false, message: "SuperAdmin already exists" });
+        .json({ success: false, message: `SuperAdmin already exists with ${phoneNumber}` });
     }
 
     // Hash password
@@ -28,6 +28,7 @@ const register = async (req: Request, res: Response) => {
       lastName,
       email,
       password: hashedPassword,
+     phoneNumber
     });
 
     await newSuperAdmin.save();
@@ -43,15 +44,15 @@ const register = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
   // Handle SuperAdmin login
-  const { email, password } = req.body;
+  const { phoneNumber, password } = req.body;
 
   try {
     // Find SuperAdmin by email
-    const SuperAdmin = await SuperAdminModel.findOne({ email });
+    const SuperAdmin = await SuperAdminModel.findOne({ phoneNumber });
     if (!SuperAdmin) {
       return res
         .status(404)
-        .json({ success: false, message: "SuperAdmin not found" });
+        .json({ success: false, message: `Phone Number ${phoneNumber} is not registered.` });
     }
 
     // Verify password
@@ -65,7 +66,7 @@ const login = async (req: Request, res: Response) => {
     // Return JWT token or other authentication response
     return res
       .status(200)
-      .json({ success: true, message: "Login successful", token });
+      .json({ success: true, message: "Login successful", token,data:SuperAdmin });
   } catch (error) {
     console.error("Error in user login:", error);
     handleMongoError(error, res);
