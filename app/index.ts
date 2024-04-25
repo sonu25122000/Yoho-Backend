@@ -6,13 +6,14 @@ import morgan from "morgan";
 import initializeDb, { DB_CONNECTION } from "./config/database";
 import routes from "./routes";
 import { swaggerSpec } from "./config/swagger.config";
+import path from "path";
 const swaggerUi = require("swagger-ui-express");
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
-
+app.use(express.static(path.join(__dirname, 'public')));
 //Middlewares
 app.use(json());
 app.use(cors());
