@@ -23,7 +23,7 @@ export const authenticateToken = (
   } catch (err) {
     return res.status(403).json({
       message:
-        "Invalid Token OR You are not authorized to perform this action.",
+        "You are not Authorized to perform this action.",
     });
   }
 };

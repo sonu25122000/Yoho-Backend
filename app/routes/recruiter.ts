@@ -3,12 +3,12 @@ import { reCruiterController } from "../controllers/recruiter";
 import { authenticateToken } from "../middleware/auth.middleware";
 
 const router = express.Router();
-router.get("/", reCruiterController.getAllRecruiter);
-router.get("/:id", reCruiterController.getRecruiterById);
-router.post("/register", reCruiterController.register);
-router.post("/login", authenticateToken, reCruiterController.login);
-router.patch("/:id", reCruiterController.updateRecruiter);
-router.patch("/change-password/:id",reCruiterController.changePassword)
+router.get("/",authenticateToken, reCruiterController.getAllRecruiter);
+router.get("/:id",authenticateToken, reCruiterController.getRecruiterById);
+router.post("/register",authenticateToken, reCruiterController.register);
+router.post("/login",authenticateToken, authenticateToken, reCruiterController.login);
+router.patch("/:id",authenticateToken, reCruiterController.updateRecruiter);
+router.patch("/change-password/:id",authenticateToken,reCruiterController.changePassword)
 router.delete(
   "/:id",
   authenticateToken,
