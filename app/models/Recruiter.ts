@@ -8,6 +8,8 @@ export interface RecruiterDocument extends mongoose.Document {
   phoneNumber: number;
   isDeactivated?: boolean;
   isDeleted?: boolean;
+  coin?: number;
+  commision?: number;
 }
 
 export const RecruiterSchema = new mongoose.Schema(
@@ -19,6 +21,8 @@ export const RecruiterSchema = new mongoose.Schema(
     phoneNumber: { type: Number, required: true },
     isDeactivated: { type: Boolean, required: false, default: false },
     isDeleted: { type: Boolean, default: false },
+    coin: { type: Number, default: 0 },
+    commision: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

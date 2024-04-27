@@ -8,15 +8,16 @@ import { generateToken } from "../service/jwtService";
 
 const register = async (req: Request, res: Response) => {
   // Handle superAdmin registration
-  const { firstName, lastName, email, password,phoneNumber } = req.body;
+  const { firstName, lastName, email, password, phoneNumber } = req.body;
 
   try {
     // Check if superAdmin already existss
     const existingSuperAdmin = await SuperAdminModel.findOne({ phoneNumber });
     if (existingSuperAdmin) {
-      return res
-        .status(400)
-        .json({ success: false, message: `SuperAdmin already exists with ${phoneNumber}` });
+      return res.status(400).json({
+        success: false,
+        message: `SuperAdmin already exists with ${phoneNumber}`,
+      });
     }
 
     // Hash password
@@ -28,7 +29,7 @@ const register = async (req: Request, res: Response) => {
       lastName,
       email,
       password: hashedPassword,
-     phoneNumber
+      phoneNumber,
     });
 
     await newSuperAdmin.save();
@@ -50,9 +51,10 @@ const login = async (req: Request, res: Response) => {
     // Find SuperAdmin by email
     const SuperAdmin = await SuperAdminModel.findOne({ phoneNumber });
     if (!SuperAdmin) {
-      return res
-        .status(404)
-        .json({ success: false, message: `Phone Number ${phoneNumber} is not registered.` });
+      return res.status(404).json({
+        success: false,
+        message: `Phone Number ${phoneNumber} is not registered.`,
+      });
     }
 
     // Verify password
@@ -64,11 +66,73 @@ const login = async (req: Request, res: Response) => {
     const token = generateToken(SuperAdmin._id, JWT_SECRET);
 
     // Return JWT token or other authentication response
-    return res
-      .status(200)
-      .json({ success: true, message: "Login successful", token,data:SuperAdmin });
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      data: SuperAdmin,
+    });
   } catch (error) {
     console.error("Error in user login:", error);
+    handleMongoError(error, res);
+  }
+};
+
+const rechargeCoin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Provided ID is not valid",
+      });
+    }
+    const { coin } = req.body;
+    const superAdmin = await SuperAdminModel.findById(id);
+    if (!superAdmin) {
+      return res.status(404).json({
+        success: false,
+        message: "SuperAdmin not found",
+      });
+    }
+    await SuperAdminModel.findByIdAndUpdate(
+      id,
+      { coin: superAdmin.coin + coin },
+      { new: true }
+    );
+    return res.status(200).json({
+      success: false,
+      message: "Recharge Successfull.",
+    });
+  } catch (error) {
+    console.log(error);
+    handleMongoError(error, res);
+  }
+};
+
+const getSuperAdminById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Provided ID is not valid",
+      });
+    }
+    const superAdmin = await SuperAdminModel.findById(id);
+    if (!superAdmin) {
+      return res.status(404).json({
+        success: false,
+        message: "SuperAdmin Not Found.",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "SuperAdmin Details",
+      data: superAdmin,
+    });
+  } catch (error) {
+    console.log(error);
     handleMongoError(error, res);
   }
 };
@@ -76,4 +140,6 @@ const login = async (req: Request, res: Response) => {
 export const superAdminController = {
   register,
   login,
+  rechargeCoin,
+  getSuperAdminById,
 };
