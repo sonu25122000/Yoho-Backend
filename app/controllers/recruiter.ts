@@ -12,11 +12,11 @@ const register = async (req: Request, res: Response) => {
 
   try {
     // Check if Recruiter already exists
-    const existingRecruiter = await RecruiterModel.findOne({ email });
+    const existingRecruiter = await RecruiterModel.findOne({ phoneNumber });
     if (existingRecruiter) {
       return res.status(400).json({
         success: false,
-        message: "Recruiter already exists with the same email.",
+        message: "Recruiter already exists with the same phoneNumber.",
       });
     }
 
@@ -51,12 +51,10 @@ const login = async (req: Request, res: Response) => {
     // Find Recruiter by email
     const Recruiter = await RecruiterModel.findOne({ phoneNumber });
     if (!Recruiter) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `Recruiter not found with ${phoneNumber}`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `Recruiter not found with ${phoneNumber}`,
+      });
     }
     if (Recruiter.isDeactivated) {
       return res.status(403).json({
@@ -129,7 +127,7 @@ const softDeletedRecruiter = async (req: Request, res: Response) => {
     }
 
     await RecruiterModel.findByIdAndUpdate(id, {
-      isDeactivated: true,
+      isDeleted: true,
     });
     return res.status(200).json({
       success: true,
@@ -140,7 +138,36 @@ const softDeletedRecruiter = async (req: Request, res: Response) => {
     handleMongoError(error, res);
   }
 };
- const changePassword = async (req: Request, res: Response) => {
+const deactivatedRecruiter = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: `Provided ID : ${id} is not valid.`,
+      });
+    }
+    const Recruiter = await RecruiterModel.findById(id);
+    if (!Recruiter) {
+      return res.status(404).json({
+        success: false,
+        message: "Recruiter Not Found.",
+      });
+    }
+
+    await RecruiterModel.findByIdAndUpdate(id, {
+      isDeleted: true,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Recruiter Deleted SuccessFully.",
+    });
+  } catch (error) {
+    console.error("Error in Deleting recruiter:", error);
+    handleMongoError(error, res);
+  }
+};
+const changePassword = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!isValidObjectId(id)) {
@@ -180,7 +207,7 @@ const softDeletedRecruiter = async (req: Request, res: Response) => {
 
 const getAllRecruiter = async (req: Request, res: Response) => {
   try {
-    const data = await RecruiterModel.find();
+    const data = await RecruiterModel.find({ isDeleted: false });
     return res.status(200).json({
       success: true,
       message: "list of all recruiter.",
@@ -214,11 +241,10 @@ const getRecruiterById = async (req: Request, res: Response) => {
       data: Recruiter,
     });
   } catch (error) {
-     console.error("Error changing password:", error);
+    console.error("Error changing password:", error);
     handleMongoError(error, res);
   }
 };
-
 
 export const reCruiterController = {
   register,
@@ -227,7 +253,8 @@ export const reCruiterController = {
   softDeletedRecruiter,
   getAllRecruiter,
   getRecruiterById,
-  changePassword
+  changePassword,
+  deactivatedRecruiter,
 };
 // change password
 // get all recruiter details with pagination

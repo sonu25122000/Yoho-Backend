@@ -7,6 +7,7 @@ export interface RecruiterDocument extends mongoose.Document {
   password: string;
   phoneNumber: number;
   isDeactivated?: boolean;
+  isDeleted?: boolean;
 }
 
 export const RecruiterSchema = new mongoose.Schema(
@@ -17,6 +18,7 @@ export const RecruiterSchema = new mongoose.Schema(
     password: { type: String, required: true },
     phoneNumber: { type: Number, required: true },
     isDeactivated: { type: Boolean, required: false, default: false },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
