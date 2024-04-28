@@ -6,10 +6,19 @@ import { handleMongoError } from "../utils/handleMongoError";
 import { generateToken } from "../service/jwtService";
 import mongoose, { isValidObjectId } from "mongoose";
 import SuperAdminModel from "../models/SuperAdmin";
+import HistoryModel, { PurchaseType, Status } from "../models/History";
 
 const register = async (req: Request, res: Response) => {
   // Handle Recruiter registration
-  const { firstName, lastName, email, password, phoneNumber } = req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    YohoId,
+    phoneNumber,
+    commision,
+  } = req.body;
 
   try {
     // Check if Recruiter already exists
@@ -31,6 +40,8 @@ const register = async (req: Request, res: Response) => {
       email,
       password: hashedPassword,
       phoneNumber,
+      commision,
+      YohoId,
     });
 
     await newRecruiter.save();
@@ -247,65 +258,39 @@ const getRecruiterById = async (req: Request, res: Response) => {
   }
 };
 
-export const purchaseRecharge = async (req: Request, res: Response) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
+const recharge = async (req: Request, res: Response) => {
   try {
+    // recruiter id
     const { id } = req.params;
-    const { adminID, coin } = req.body;
-    if (!isValidObjectId(id) || !isValidObjectId(adminID)) {
-      return res.status(400).json({
+    const { adminID, YohoId, coin } = req.body;
+    const recruiter = await RecruiterModel.findById(id);
+
+    if (!recruiter) {
+      return res.status(404).json({
         success: false,
-        message: "Either admin id or recruiter id not valid.",
+        message: "Recruiter not found.",
       });
     }
-    // Fetch the admin from the database
-    const admin = await SuperAdminModel.findById(adminID).session(session);
-    if (!admin) {
-      return res.status(404).json({ success: false, error: "Admin not found" });
-    }
-
-    // Fetch the user from the database
-    const recruiter = await RecruiterModel.findById(id).session(session);
-    if (!recruiter) {
-      return res.status(404).json({ success: false, error: "User not found" });
-    }
-
-    // Update admin's coin balance
-    admin.coin -= coin;
-
-    // Validate admin's updated coin balance
-    if (admin.coin < 0) {
-      await session.abortTransaction();
-      session.endSession();
-      return res
-        .status(400)
-        .json({ success: false, error: "Insufficient coins in admin account" });
-    }
-
-    // Update user's coin balance
+    const addHistory = new HistoryModel({
+      recruiterID: recruiter._id,
+      purchaseType: PurchaseType.BUY,
+      status: Status.PENDING,
+      coin: coin,
+      YohoId,
+      adminID: adminID,
+    });
     recruiter.coin += coin;
+    recruiter.rechargeStatus = Status.PENDING;
 
-    // Save changes to admin and user
-    await admin.save();
+    await addHistory.save();
     await recruiter.save();
-
-    await session.commitTransaction();
-    session.endSession();
-
     return res.status(200).json({
       success: true,
-      message:
-        "Recharged Requested Successfully. It will be reflect with 10 min.",
+      message: "Recharge Requested.",
     });
   } catch (error) {
     console.error("Error in rechargeUser controller:", error);
-    await session.abortTransaction();
-    session.endSession();
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    handleMongoError(error, res);
   }
 };
 
@@ -318,5 +303,5 @@ export const reCruiterController = {
   getRecruiterById,
   changePassword,
   deactivatedRecruiter,
-  purchaseRecharge,
+  recharge,
 };

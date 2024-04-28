@@ -10,6 +10,14 @@ export interface RecruiterDocument extends mongoose.Document {
   isDeleted?: boolean;
   coin?: number;
   commision?: number;
+  YohoId?: string;
+  rechargeStatus?: Status;
+}
+
+export enum Status {
+  APPROVED = "approved",
+  PENDING = "pending",
+  RJECTED = "rejected",
 }
 
 export const RecruiterSchema = new mongoose.Schema(
@@ -19,10 +27,12 @@ export const RecruiterSchema = new mongoose.Schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     phoneNumber: { type: Number, required: true },
-    isDeactivated: { type: Boolean, required: false, default: false },
+    active: { type: Boolean, required: false, default: true },
     isDeleted: { type: Boolean, default: false },
     coin: { type: Number, default: 0 },
-    commision: { type: Number, default: 0 },
+    commision: { type: Number, required: true }, // will be add at the time of comission
+    YohoId: { type: String, required: false },
+    rechargeStatus: { type: String, enum: Object.values(Status) },
   },
   { timestamps: true }
 );

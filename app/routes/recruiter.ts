@@ -38,6 +38,6 @@ router.delete(
   authenticateToken,
   reCruiterController.softDeletedRecruiter
 );
-router.patch("/recharge/:id", reCruiterController.purchaseRecharge);
+router.patch("/recharge/:id", reCruiterController.recharge);
 
 export default router;

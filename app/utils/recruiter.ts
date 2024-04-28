@@ -20,6 +20,7 @@ export const validateRecruiterDetails = (
       "string.max": "lastName cannot be longer than 50 characters",
       "any.required": "lastName is required.",
     }),
+
     email: Joi.string().email().required().messages({
       "string.base": "Email must be a string",
       "string.empty": "Email is required",
@@ -40,6 +41,14 @@ export const validateRecruiterDetails = (
       "string.max": "Password cannot be longer than 50 characters",
       "any.required": "Password is required.",
     }),
+
+    commision: Joi.number().integer().positive().required().messages({
+      "number.base": "commision must be a number",
+      "number.integer": "commision must be an integer",
+      "number.positive": "commision must be a positive integer",
+      "any.required": "commision is required",
+    }),
+    YohoId: Joi.string().optional(),
   });
 
   const validationResult = RecruiterSchema.validate(req.body);
