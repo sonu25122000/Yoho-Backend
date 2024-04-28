@@ -102,6 +102,7 @@ const approvRecharge = async (req: Request, res: Response) => {
       .json({ success: false, error: "Internal server error" });
   }
 };
+
 const rejectRecharge = async (req: Request, res: Response) => {
   try {
     // history id
@@ -136,14 +137,12 @@ const rejectRecharge = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "Recharged Requested Approved",
+      message: "Recharged Requested Rejected",
     });
   } catch (error) {
     console.error("Error in rechargeUser controller:", error);
 
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    handleMongoError(error, res);
   }
 };
 

@@ -219,7 +219,9 @@ const changePassword = async (req: Request, res: Response) => {
 
 const getAllRecruiter = async (req: Request, res: Response) => {
   try {
-    const data = await RecruiterModel.find({ isDeleted: false });
+    const data = await RecruiterModel.find({ isDeleted: false }).select(
+      "-password"
+    );
     return res.status(200).json({
       success: true,
       message: "list of all recruiter.",
@@ -240,7 +242,7 @@ const getRecruiterById = async (req: Request, res: Response) => {
         message: `Provided ID : ${id} is not valid`,
       });
     }
-    const Recruiter = await RecruiterModel.findById(id);
+    const Recruiter = await RecruiterModel.findById(id).select("-password");
     if (!Recruiter) {
       return res.status(404).json({
         success: false,
