@@ -279,7 +279,6 @@ const recharge = async (req: Request, res: Response) => {
       YohoId,
       adminID: adminID,
     });
-    recruiter.coin += coin;
     recruiter.rechargeStatus = Status.PENDING;
 
     await addHistory.save();
